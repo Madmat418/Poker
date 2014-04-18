@@ -72,6 +72,10 @@
 	socket.on('renderInfo', function(data) {
 	  ctx.fillText(data.message, data.loc[0], data.loc[1]);
 	})
+	socket.on('hidePoker', function() {
+	  $('#play-poker')[0].style.visibility = 'hidden';
+	})
+	
 	
 	socket.on('roomList', function(roomData){
 	  updateRoomList(roomData);
@@ -91,6 +95,8 @@
 	  ctx.drawImage(images[data.cards[0].img], 400, 500)
 	  ctx.drawImage(images[data.cards[1].img], 480, 500)
 	})
+	
+	var timer = '';
 	socket.on('betPhase', function(data) {
 	  $('#fold')[0].style.visibility = 'visible';
 	  if (data.player.currentBet === data.game.currentBet) {
@@ -100,23 +106,36 @@
 	  }
 	  $('#raise')[0].style.visibility = 'visible';
 	  gameState = data.game;
+	  var ticker = 0;
+	  timer = setInterval(function() {
+	    ticker += 1
+		if (ticker >= 1500) {
+	      chatApp.fold(gameState);
+		  hideButtons();
+		  clearInterval(timer);
+	    }
+	  }, 10)		
 	})
 	socket.on('clearBoard', function() {
 	  ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);	  
 	})
 	$('#fold').click(function() {
+      clearInterval(timer);
 	  chatApp.fold(gameState);
 	  hideButtons();
 	})
 	$('#check').click(function() {
+	  clearInterval(timer);
 	  hideButtons();
 	  chatApp.check(gameState);
 	})
 	$('#raise').click(function() {
+      clearInterval(timer);
 	  hideButtons();
 	  chatApp.raise(gameState);
 	})
 	$('#call').click(function() {
+      clearInterval(timer);
 	  hideButtons();
 	  chatApp.call(gameState);
 	})

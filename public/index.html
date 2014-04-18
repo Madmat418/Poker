@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>Chat App</title>
+    <title>The Poker Node</title>
 	<link rel='stylesheet' href='stylesheets/style.css'></link>
 	<script src='http://code.jquery.com/jquery-1.8.0.min.js' type='text/javascript'></script>
 	<script src='/socket.io/socket.io.js' type='text/javascript'></script>
@@ -14,16 +14,16 @@
 
   </head>
   <body>
-    <button id='test-poker'>Test Hand</button>
+    <button id='test-poker' style='visibility: hidden;'>Test Hand</button>
     <canvas id='my_canvas' width='1000' height='700'></canvas>
-    <header>
-	  <h1>Chat</h1>
-	</header>
 	<button id='play-poker'>Play Poker</button>
 	<button id='call' style='visibility: hidden;' class='betting'>Call</button>
 	<button id='check' style='visibility: hidden;' class='betting'>Check</button>
 	<button id='fold' style='visibility: hidden;' class='betting'>Fold</button>
 	<button id='raise' style='visibility: hidden;' class='betting'>Raise</button>
+	<header>
+	  <h1>Chat</h1>
+	</header>
 	<div id='chat-messages' style='overflow: auto; width:600px; height:100px;'>
 	</div>
 	
