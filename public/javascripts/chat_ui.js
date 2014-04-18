@@ -69,7 +69,7 @@
 	    $('#chat-messages').append(escapeDivText(result.text))
 	  }
 	});
-	socket.on('renderInfo, function(data) {
+	socket.on('renderInfo', function(data) {
 	  ctx.fillText(data.message, data.loc[0], data.loc[1]);
 	})
 	
