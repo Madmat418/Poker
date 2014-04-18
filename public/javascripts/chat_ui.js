@@ -59,6 +59,7 @@
     var gameState = '';
     var chatApp = new ChatApp.Chat(socket);
 	var ctx = document.getElementById('my_canvas').getContext('2d');
+	ctx.font = '30px Arial';
 	socket.on('message', function(message) {
 	  var newElement = escapeDivText(message);
 	  $('#chat-messages').prepend(escapeDivText(message.text));
@@ -68,6 +69,10 @@
 	    $('#chat-messages').append(escapeDivText(result.text))
 	  }
 	});
+	socket.on('renderInfo, function(data) {
+	  ctx.fillText(data.message, data.loc[0], data.loc[1]);
+	})
+	
 	socket.on('roomList', function(roomData){
 	  updateRoomList(roomData);
 	});
@@ -87,10 +92,6 @@
 	  ctx.drawImage(images[data.cards[1].img], 480, 500)
 	})
 	socket.on('betPhase', function(data) {
-	  console.log(data.player.currentBet);
-	  console.log(data.game.currentBet);
-	  console.log(data.game.currentPlayer);
-	  console.log(data.game);
 	  $('#fold')[0].style.visibility = 'visible';
 	  if (data.player.currentBet === data.game.currentBet) {
 	    $('#check')[0].style.visibility = 'visible';
