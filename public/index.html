@@ -1,39 +1,46 @@
 <html>
   <head>
     <title>The Poker Node</title>
-	<link rel='stylesheet' href='stylesheets/style.css'></link>
-	<script src='http://code.jquery.com/jquery-1.8.0.min.js' type='text/javascript'></script>
-	<script src='/socket.io/socket.io.js' type='text/javascript'></script>
-	<script src='/javascripts/chat.js' type='text/javascript'></script>
-	<script src='/javascripts/chat_ui.js' type='text/javascript'></script>
-	<style type='text/css'>
-	  #my_canvas{ background: #FFF; border: #000 1px solid; }
-	</style>
-	
-	
-
+    <link rel='stylesheet' href='stylesheets/style.css'></link>
+    <script src='http://code.jquery.com/jquery-1.8.0.min.js' type='text/javascript'></script>
+    <script src='/socket.io/socket.io.js' type='text/javascript'></script>
+    <script src='/javascripts/chat.js' type='text/javascript'></script>
+    <script src='/javascripts/chat_ui.js' type='text/javascript'></script>
+    <script src='http://d3lp1msu2r81bx.cloudfront.net/kjs/js/lib/kinetic-v5.0.2.min.js'></script>
+    <style type='text/css'>
+      #my_canvas{ background: #FFF; border: #000 1px solid;
+                  width: 800px; height: 600px}
+    </style>
   </head>
   <body>
     <button id='test-poker' style='visibility: hidden;'>Test Hand</button><br>
-    <canvas id='my_canvas' width='1000' height='700'></canvas><br>
-	<button id='play-poker'>Play Poker</button>
-	<button id='call' style='visibility: hidden;' class='betting'>Call</button>
-	<button id='check' style='visibility: hidden;' class='betting'>Check</button>
-	<button id='fold' style='visibility: hidden;' class='betting'>Fold</button>
-	<button id='raise' style='visibility: hidden;' class='betting'>Raise</button>
-	<header>
-	  <h1>Chat</h1>
-	</header>
-	<div id='chat-messages' style='overflow: auto; width:600px; height:100px;'>
-	</div>
-	
-	<form class='send-form'>
-	  <input id='send-message' type='text'>
-	  <input id='send-button' type='submit' value='Send'>
-	</form>
-	<div class='room-listings'>
-	</div>
+    <div id='my_canvas'></div>
+    <script defer='defer'>
+      var stage = new Kinetic.Stage({
+        container: 'my_canvas',
+        width: 800,
+        height: 600
+      })
+    </script>
+      
+    <button id='play-poker'>Play Poker</button>
+    <button id='call' style='visibility: hidden;' class='betting'>Call</button>
+    <button id='check' style='visibility: hidden;' class='betting'>Check</button>
+    <button id='fold' style='visibility: hidden;' class='betting'>Fold</button>
+    <button id='raise' style='visibility: hidden;' class='betting'>Raise</button>
+    <header>
+      <h1>Chat</h1>
+    </header>
+    <div id='chat-messages' style='overflow: auto; width:600px; height:100px;'>
+    </div>
+
+    <form class='send-form'>
+      <input id='send-message' type='text'>
+      <input id='send-button' type='submit' value='Send'>
+    </form>
+    <div class='room-listings'>
+    </div>
   </body>
-  <div><p>/nick new_name to change username<br>
-  <p>/join new_room to change rooms</p></div>
+    <div><p>/nick new_name to change username</p><br>
+    <p>/join new_room to change rooms</p></div>
 </html>

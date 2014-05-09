@@ -5,14 +5,15 @@ var mime = require('mime');
 var serveFile = function(response, absPath){
   fs.readFile(absPath, function(err, data) {
     if (err) {
-	  console.log("ERROR LOGGED: ", err);
-	  serveError(response, 404);
-	} else {
-	  response.writeHead(
-	    200,
-		{"Content-Type": mime.lookup(path.basename(absPath))});
-	  response.end(data);
-	}
+      console.log("ERROR LOGGED: ", err);
+      serveError(response, 404);
+    } else {
+      response.writeHead(
+        200,
+        {"Content-Type": mime.lookup(path.basename(absPath))}
+      );
+      response.end(data);
+    }
   }
 )}
 
@@ -25,7 +26,7 @@ var serveError = function(response, errorCode) {
   }  
   response.writeHead(errorCode, {'Content-Type': 'text/plain'});
   response.write(message);
-    response.end();
+  response.end();
 }
 
 var router = function(request, response) {
