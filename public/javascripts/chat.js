@@ -17,8 +17,6 @@
   }
   
   Chat.prototype.startPoker = function() {
-    console.log('chat');
-    console.log(this);
     this.socket.emit('poker', {room: this.room});
   }
   
@@ -58,7 +56,6 @@
       this.joinRoom(newRoom);
       break;
     case 'poker':
-      console.log('command');
       this.socket.emit('poker', {room: this.room});
       break;
     default:

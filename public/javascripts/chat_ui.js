@@ -67,7 +67,9 @@
   
   var addPlayerInfo = function(player) {
     var info = stage.find('#' + player.name);
-    info[0].destroy();
+    if (info[0]) {
+      info[0].destroy();
+    }
     var loc = INFLOCS[player.location];
     var layer = new Kinetic.Layer({
       id: player.name
@@ -101,13 +103,6 @@
     var items = stage.find(name);
     items.forEach(function(item) {
       item.destroy();
-    })
-  }
-  
-  var removeCards = function() {
-    var cards = stage.find('.card');
-    cards.forEach(function(card) {
-      card.destroy();
     })
   }
   
@@ -251,24 +246,23 @@
     var fold = function() {
       clearInterval(timer);
       chatApp.fold(gameState, myPos);
-      removeButtons();
+      removeItems('.button');
     }
     
     var check = function() {
       clearInterval(timer);
-      removeButtons();
+      removeItems('.button');
       chatApp.check(gameState);
     }
     
     var raise = function() {
       clearInterval(timer);
-      removeButtons();
+      removeItems('.button');
       chatApp.raise(gameState);
     }
     var call = function() {
-      console.log(gameState);
       clearInterval(timer);
-      removeButtons();
+      removeItems('.button');
       chatApp.call(gameState);
     }
     
