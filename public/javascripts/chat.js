@@ -26,8 +26,8 @@
     this.socket.emit('testPlay', {room: this.room});
   }
   
-  Chat.prototype.fold = function(game) {
-    this.socket.emit('fold', {room: this.room, game: game});
+  Chat.prototype.fold = function(game, loc) {
+    this.socket.emit('fold', {room: this.room, game: game, location: loc});
   }
   
   Chat.prototype.check = function(game) {

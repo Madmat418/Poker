@@ -32,6 +32,14 @@
     this.currentPlayer = 0;
     this.numCalled = 0;
   }
+  
+  Game.prototype.playerPos = function() {
+    var positions = [];
+    this.players.forEach(function(player) {
+      positions.push(player.location);
+    })
+    return positions;
+  }
 
   Game.prototype.draw = function(num) {
     var cards = [];
@@ -357,5 +365,6 @@
     this.hand = [];
     this.room = '';
     this.currentBet = 0;
+    this.location = '';
   }
 })(this);

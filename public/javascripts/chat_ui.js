@@ -8,8 +8,11 @@
         7 : 'Seven', 8 : 'Eight', 9 : 'Nine', 10 : 'Ten', 11 : 'Jack', 12 : 'Queen',
         13 : 'King'
   }
-  
+  var POCLOCS = {1: [220, 350], 2: [740, 350], 3: [880, 200], 4: [740, 20],  5: [220, 20],  6: [20, 200]}
+  var INFLOCS = {1: [207, 450], 2: [727, 450], 3: [867, 300], 4: [727, 120], 5: [207, 120], 6: [ 7, 300]}
   var images = {};
+  var cardBack = new Image();
+  cardBack.src = '/assets/Card_Back.jpg';
   SUITS.forEach(function(suit) {
     VALUES.forEach(function(value) {
     var img = new Image();
@@ -20,6 +23,20 @@
   
   var escapeDivText = function(text) {
     return $('<div></div>').text(text);
+  }
+  
+  Kinetic._addName = function(node, name) {
+    if(name !== undefined) {
+      var names = name.split(/\W+/g);
+      for (var n = 0; n < names.length; n++) {
+        if (names[n]) {
+          if (this.names[names[n]] === undefined) {
+            this.names[names[n]] = [];
+          }
+          this.names[names[n]].push(node);
+        }
+      }
+    }
   }
   
   var processInput = function (chatApp) {
@@ -48,54 +65,57 @@
     });
   }
   
-  var hideButtons = function() {
-    $('#check')[0].style.visibility = 'hidden';
-    $('#call')[0].style.visibility = 'hidden';
-    $('#raise')[0].style.visibility = 'hidden';
-    $('#fold')[0].style.visibility = 'hidden';
-  }
-  
-  var makeButton = function(loc, action, string) {
+  var addPlayerInfo = function(player) {
+    var info = stage.find('#' + player.name);
+    info[0].destroy();
+    var loc = INFLOCS[player.location];
     var layer = new Kinetic.Layer({
-      name: 'button'
+      id: player.name
     });
+    var rect = new Kinetic.Rect({
+      x: loc[0], 
+      y: loc[1], 
+      height: 40, 
+      width: 113, 
+      fill: '#ddd', 
+      stroke: 'black', 
+      strokeWidth: 4
+    })
     var stringObj = new Kinetic.Text({
       x: loc[0],
       y: loc[1],
-      width: 80,
-      text: string,
-      fontsize: 12,
+      width: 113,
+      text: '\n' + player.name + '\n' + player.stack,
+      fontsize: 14,
       fill: '#555',
-      align: 'center'
+      align: 'center',
     })
-    var button = new Kinetic.Rect({
-      x: loc[0],
-      y: loc[1],
-      height: 40,
-      width: 80,
-      fill: '#ddd',
-      listening: true,
-      stroke: 'black',
-      strokeWidth: 4
-    })
-    
-    button.on('click', action)
-    layer.add(button);
-    layer.add(stringObj)
+    layer.add(rect);
+    layer.add(stringObj);
     stage.add(layer);
-    layer.destroy();
   }
   
-  var removeButtons = function() {
-    console.log('here')
-    var buttons = stage.find('.button');
-    buttons.each(function(but) {
-      but.destroy();
+  
+  
+  var removeItems = function(name) {
+    var items = stage.find(name);
+    items.forEach(function(item) {
+      item.destroy();
     })
   }
   
-  var renderCard = function(loc, card) {
-    var layer = new Kinetic.Layer();
+  var removeCards = function() {
+    var cards = stage.find('.card');
+    cards.forEach(function(card) {
+      card.destroy();
+    })
+  }
+  
+  var renderCard = function(loc, card, string) {
+    var str = string + ' card'
+    var layer = new Kinetic.Layer({
+      name: str
+    });
     var card = new Kinetic.Image({
       x: loc[0],
       y: loc[1],
@@ -139,7 +159,7 @@
   $(document).ready(function() {
     var gameState = '';
     var chatApp = new ChatApp.Chat(socket);
-    
+    var myPos = 0;
     
     makeButton([20,20], chatApp.startPoker.bind(chatApp), 'Play Poker');
     socket.on('message', function(message) {
@@ -151,42 +171,65 @@
         $('#chat-messages').append(escapeDivText(result.text))
       }
     });
-    socket.on('hidePoker', function() {
-      $('#play-poker')[0].style.visibility = 'hidden';
-    })
     socket.on('roomList', function(roomData){
       updateRoomList(roomData);
     });
+    socket.on('playerInfo', function(data) {
+      console.log('something');
+      console.log(data.player);
+      addPlayerInfo(data.player);
+    })
+    socket.on('playersInfo', function(data) {
+      data.players.forEach(function(player) {
+        addPlayerInfo(player);
+      })
+    })    
     socket.on('renderFlop', function(data) {
       var layer = new Kinetic.Layer();
       for (var i = 0; i <= 2 ; i++) {
-        renderCard([(i * 80) + (stage.width() / 2) - 150, (stage.height() / 2 - 50)], images[data.cards[i].img])
+        renderCard([(i * 80) + (stage.width() / 2) - 175, (stage.height() / 2 - 50)], images[data.cards[i].img])
       } 
     })
     socket.on('renderTurn', function(data) {
-      renderCard([(3 * 80) + (stage.width() / 2) - 150, (stage.height() / 2) - 50], images[data.card[0].img])
+      renderCard([(3 * 80) + (stage.width() / 2) - 175, (stage.height() / 2) - 50], images[data.card[0].img])
     })
     socket.on('renderRiver', function(data) {
-      renderCard([(4 * 80) + (stage.width() / 2) - 150, (stage.height() / 2) - 50], images[data.card[0].img])
+      renderCard([(4 * 80) + (stage.width() / 2) - 175, (stage.height() / 2) - 50], images[data.card[0].img])
     })
     socket.on('revealPocket', function(data) {
-      renderCard([400, 450], images[data.cards[0].img]);
-      renderCard([480, 450], images[data.cards[1].img]);
+      myPos = data.location
+      data.locations.forEach(function(loc) {
+        var num = loc.toString();
+        var numString = 'cards' + num;
+        if (data.location === loc) {
+          console.log('here');
+          var location = POCLOCS[data.location]
+          var location2 = [location[0] + 13, location[1]];
+          renderCard(location, images[data.cards[0].img], numString);
+          renderCard(location2, images[data.cards[1].img], numString);
+        } else {
+          var location = POCLOCS[loc];
+          var location2 = [location[0] + 13, location[1]];
+          var num = 
+          renderCard(location, cardBack, numString);
+          renderCard(location, cardBack, numString);
+        }
+      })
     })
-    
+
     var timer = '';
     socket.on('betPhase', function(data) {
       gameState = data.game;
       if (data.game.numPlayers === 1) {
         chatApp.winner(gameState);
       } else {
-        makeButton([720, 450], fold.bind(chatApp), 'Fold')
+        makeButton([920, 350], fold.bind(chatApp), 'Fold')
         if (data.player.currentBet === data.game.currentBet) {
-          makeButton([720, 500], check.bind(chatApp), 'Check');
+          makeButton([920, 400], check.bind(chatApp), 'Check');
         } else {
-          makeButton([720, 500], call.bind(chatApp), 'Call');
+          makeButton([920, 400], call.bind(chatApp), 'Call');
         }
-        makeButton([720, 550], raise.bind(chatApp), 'Raise');
+        makeButton([920, 450], raise.bind(chatApp), 'Raise');
         var ticker = 0;
         timer = setInterval(function() {
           ticker += 1
@@ -197,11 +240,17 @@
       }
     })
     socket.on('clearBoard', function() {
-      stage.clear(); 
+      removeItems('.button');
+      removeItems('.card');
+    })
+    socket.on('fold', function(data) {
+      var numString = data.folding.toString();
+      var cardString = '.cards' + numString;
+      removeItems(cardString);
     })
     var fold = function() {
       clearInterval(timer);
-      chatApp.fold(gameState);
+      chatApp.fold(gameState, myPos);
       removeButtons();
     }
     
@@ -217,6 +266,7 @@
       chatApp.raise(gameState);
     }
     var call = function() {
+      console.log(gameState);
       clearInterval(timer);
       removeButtons();
       chatApp.call(gameState);
