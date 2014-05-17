@@ -154,8 +154,14 @@
   $(document).ready(function() {
     var chatApp = new ChatApp.Chat(socket);
     var myPos = 0;
+    socket.on('gameInProgress', function(data) {
     
-    makeButton([20,20], chatApp.startPoker.bind(chatApp), 'Play Poker');
+    
+    })
+    
+    socket.on('gameNotStarted', function(data) {
+      makeButton([20,20], chatApp.startPoker.bind(chatApp), 'Play Poker');
+    })
     socket.on('message', function(message) {
       var newElement = escapeDivText(message);
       $('#chat-messages').prepend(escapeDivText(message.text));
@@ -196,7 +202,6 @@
         var num = loc.toString();
         var numString = 'cards' + num;
         if (data.location === loc) {
-          console.log('here');
           var location = POCLOCS[data.location]
           var location2 = [location[0] + 13, location[1]];
           renderCard(location, images[data.cards[0].img], numString);
@@ -213,6 +218,7 @@
 
     var timer = '';
     socket.on('betPhase', function(data) {
+      console.log('here');
       if (data.game.numPlayers === 1) {
         chatApp.winner();
       } else {
