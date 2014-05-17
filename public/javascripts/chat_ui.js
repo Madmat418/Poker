@@ -152,7 +152,6 @@
   }
   
   $(document).ready(function() {
-    var gameState = '';
     var chatApp = new ChatApp.Chat(socket);
     var myPos = 0;
     
@@ -214,9 +213,8 @@
 
     var timer = '';
     socket.on('betPhase', function(data) {
-      gameState = data.game;
       if (data.game.numPlayers === 1) {
-        chatApp.winner(gameState);
+        chatApp.winner();
       } else {
         makeButton([920, 350], fold.bind(chatApp), 'Fold')
         if (data.player.currentBet === data.game.currentBet) {
@@ -243,27 +241,33 @@
       var cardString = '.cards' + numString;
       removeItems(cardString);
     })
+    socket.on('newButton', function() {
+      makeButton([20,20], chatApp.startPoker.bind(chatApp), 'Play Poker');
+    })
+    socket.on('playerLeft', function(data) {
+      removeItems('#' + data.name);
+    })
     var fold = function() {
       clearInterval(timer);
-      chatApp.fold(gameState, myPos);
+      chatApp.fold(myPos);
       removeItems('.button');
     }
     
     var check = function() {
       clearInterval(timer);
       removeItems('.button');
-      chatApp.check(gameState);
+      chatApp.check();
     }
     
     var raise = function() {
       clearInterval(timer);
       removeItems('.button');
-      chatApp.raise(gameState);
+      chatApp.raise();
     }
     var call = function() {
       clearInterval(timer);
       removeItems('.button');
-      chatApp.call(gameState);
+      chatApp.call();
     }
     
     $('.send-form').submit(function(e) {

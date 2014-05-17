@@ -24,24 +24,24 @@
     this.socket.emit('testPlay', {room: this.room});
   }
   
-  Chat.prototype.fold = function(game, loc) {
-    this.socket.emit('fold', {room: this.room, game: game, location: loc});
+  Chat.prototype.fold = function(loc) {
+    this.socket.emit('fold', {room: this.room, location: loc});
   }
   
-  Chat.prototype.check = function(game) {
-    this.socket.emit('check', {room: this.room, game: game});
+  Chat.prototype.check = function() {
+    this.socket.emit('check', {room: this.room});
   }
   
-  Chat.prototype.raise = function(game) {
-    this.socket.emit('raise', {room: this.room, game: game});
+  Chat.prototype.raise = function() {
+    this.socket.emit('raise', {room: this.room});
   }
   
-  Chat.prototype.call = function(game) {
-    this.socket.emit('call', {room: this.room, game: game});
+  Chat.prototype.call = function() {
+    this.socket.emit('call', {room: this.room});
   }
   
-  Chat.prototype.winner = function(game) {
-    this.socket.emit('winByFold', {room: this.room, game: game});
+  Chat.prototype.winner = function() {
+    this.socket.emit('winByFold', {room: this.room});
   }
   
   Chat.prototype.processCommand = function(command){

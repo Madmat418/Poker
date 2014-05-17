@@ -100,88 +100,94 @@
     }
     
     var aceValue = function(card) {
-      if (card.value === 1) {
+      if (card.ace) {
         return 14;
       }
       return card.value
     }
 
     var setCards = function() {
-      valHash = new Object;
-      cardHash = new Object;
+      var valHash = new Object();
+      var cardHash = new Object();
+      var result = [];
+      
       hand.forEach(function(card) {
-        if (!valHash[(card.value)]) {
-          if (card.ace) {
+        if (card.ace) {
+          if (valHash[14]) {
+            valHash[14]++;
+            cardHash[14].push(card);
+          } else {
             valHash[14] = 1;
             cardHash[14] = [card];
+          }
+        } else {
+          if (valHash[card.value]) {
+            valHash[card.value]++;
+            cardHash[card.value].push(card);
           } else {
             valHash[card.value] = 1;
             cardHash[card.value] = [card];
           }
-        } else {
-          valHash[card.value] += 1;
-          cardHash[card.value].push(card);
         }
       })
-      setHash = new Object;
-      cardSetsHash = new Object;
+      var setsHash = new Object();
+      var cardSets = new Object();
       for (var value in valHash) {
-        if (!setHash[valHash[value]]) {
-          setHash[valHash[value]] = 1;
-          cardSetsHash[valHash[value]] = new Object;
-          cardSetsHash[valHash[value]] = [cardHash[value]];
+        if (setsHash[valHash[value]]) {
+          setsHash[valHash[value]]++;
+          for (var i = 1; i <= valHash[value]; i++) {
+            cardSets[valHash[value]].unshift(cardHash[value].shift())
+          }
         } else {
-          setHash[valHash[value]] += 1;
-          cardSetsHash[valHash[value]].unshift(cardHash[value]);
+          setsHash[valHash[value]] = 1;
+          cardSets[valHash[value]] = cardHash[value];
         }
       }
-      var cards = [];
-      if (setHash[4]) {
+      
+      if (setsHash[4]) {
         handHash['Four of a Kind'] = true;
-        cards = cardSetsHash[4][0].concat(highCard(removeCards(hand, cardSetsHash[4][0])));
-      } else if (setHash[3] === 2 || (setHash[3] && setHash[2])) {
+        result = cardSets[4];
+        var remaining = removeCards(hand, result);
+        result.push(highCard(remaining));
+      } else if (setsHash[3] === 2) {
         handHash['Full House'] = true;
-        cards = cardSetsHash[3][0];
-        if (setHash[3] === 2) {
-          cards = cards.concat(cardSetsHash[3][1].splice(0, 2));
-        } else {
-          cards = cards.concat(cardSetsHash[2][0]);
-        }
-      } else if (setHash[3]) {
+        result = cardSets[3].slice(0, 5);
+      } else if (setsHash[3] && setsHash[2]) {
+        handHash['Full House'] = true;
+        result = cardSets[3].concat(cardSets[2].slice(0,2));
+      } else if (setsHash[3]) {
         handHash['Three of a Kind'] = true;
-        var remainingCards = removeCards(hand, cardSetsHash[3][0]);
-        var firstKicker = highCard(remainingCards);
-        remainingCards = removeCards(remainingCards, [firstKicker]);
-        var secondKicker = highCard(remainingCards);
-        cards = cardSetsHash[3][0]
-        cards.push(secondKicker);
-        cards.push(firstKicker);
-      } else if (setHash[2] >= 2) {
+        result = cardSets[3];
+        var remaining = removeCards(hand, result);
+        result.push(highCard(remaining));
+        remaining = removeCards(remaining, [result[3]]);
+        result.push(highCard(remaining));
+      } else if (setsHash[2] >= 2) {
         handHash['Two Pair'] = true;
-        var remainingCards = removeCards(hand, cardSetsHash[2][0].concat(cardSetsHash[2][1]));
-        var kicker = highCard(remainingCards);
-        cards = cardSetsHash[2][0].concat(cardSetsHash[2][1]);
-        cards.push(kicker);		
-      } else if (setHash[2]) {
+        result = cardSets[2].slice(0,4);
+        var remaining = removeCards(hand, result);
+        result.push(highCard(remaining));
+      } else if (setsHash[2]) {
         handHash['One Pair'] = true;
-        var remainingCards = removeCards(hand, cardSetsHash[2][0]);
-        var firstKicker = highCard(remainingCards);
-        remainingCards = removeCards(remainingCards, [firstKicker]);
-        var secondKicker = highCard(remainingCards);
-        remainingCards = removeCards(remainingCards, [secondKicker]);
-        var thirdKicker = highCard(remainingCards);
-        cards = cardSetsHash[2][0];
-        cards.push(thirdKicker);
-        cards.push(secondKicker);
-        cards.push(firstKicker);
+        result = cardSets[2];
+        var remaining = removeCards(hand, result);
+        result.push(highCard(remaining));
+        remaining = removeCards(remaining, [result[2]]);
+        result.push(highCard(remaining));
+        remaining = removeCards(remaining, [result[3]]);
+        result.push(highCard(remaining));
       } else {
-        var dupHand = hand;
-        for (var i = 0; i <= 4; i++) {
-          cards[i] = highCard(dupHand);
-          removeCards(dupHand, [cards[i]]);
-        }
+        result.push(highCard(hand));
+        var remaining = removeCards(hand, result);
+        result.push(highCard(remaining));
+        remaining = removeCards(remaining, [result[1]]);
+        result.push(highCard(remaining));
+        remaining = removeCards(remaining, [result[2]]);
+        result.push(highCard(remaining));
+        remaining = removeCards(remaining, [result[3]]);
+        result.push(highCard(remaining));
       }
-      return cards;
+      return result;
     }
 
     var removeCards = function(set, subset) {
@@ -272,17 +278,17 @@
 
     switch (handType) {
     case 'Royal Flush':
-      return {'string': handType, 'hand': sortFlush, 'value': 1};
+      return {'string': handType, 'hand': sortFlush, 'value': 1, 'high': [1]};
       break;
     case 'Straight Flush':
-      return {'string': handType + ': ' + flushRuns[4].valueString + ' high', 'hand': flushRuns, 'value': 2, 'high': [flushRuns[4].value]};
+      return {'string': handType + ': ' + flushRuns[4].valueString + ' high', 'hand': flushRuns, 'value': 2, 'high': [aceValue(flushRuns[4].value)]};
       break;
     case 'Four of a Kind':
-      var kickArray = [setHand[0], setHand[4]];
+      var kickArray = [aceValue(setHand[0]), aceValue(setHand[4])];
       return {'string': handType + ': ' + setHand[0].valueString + 's', 'hand': setHand, 'value': 3, 'high': kickArray};
       break;
     case 'Full House':
-      var kickArray = [setHand[0], setHand[3]];
+      var kickArray = [aceValue(setHand[0]), aceValue(setHand[3])];
       return {'string': handType + ': ' + setHand[0].valueString + 's full of ' + setHand[3].valueString + 's', 'hand': setHand, 'value': 4, 'high': kickArray};
       break;
     case 'Flush':
@@ -296,19 +302,19 @@
       return {'string': handType + ': ' + runners[4].valueString + ' high', 'hand': runners, 'value': 6, 'high': [aceValue(runners[4])]};
       break;
     case 'Three of a Kind':
-      var kickArray = [setHand[0], setHand[4], setHand[3]]
+      var kickArray = [aceValue(setHand[0]), aceValue(setHand[3]), aceValue(setHand[4])]
       return {'string': handType + ': ' + setHand[0].valueString + 's', 'hand': setHand, 'value': 7, 'high': kickArray};
       break;
     case 'Two Pair':
-      var kickArray = [setHand[0], setHand[2], setHand[4]];
+      var kickArray = [aceValue(setHand[0]), aceValue(setHand[2]), aceValue(setHand[4])];
       return {'string': handType + ': ' + setHand[0].valueString + 's and ' + setHand[2].valueString + 's', 'hand': setHand, 'value': 8, 'high': kickArray};
       break;
     case 'One Pair':
-      var kickArray = [setHand[0], setHand[2], setHand[3], setHand[4]];
+      var kickArray = [aceValue(setHand[0]), aceValue(setHand[2]), aceValue(setHand[3]), aceValue(setHand[4])];
       return {'string': handType + ': ' + setHand[0].valueString + 's', 'hand': setHand, 'value': 9, 'high': kickArray};
       break;
     default:
-      var kickArray = [setHand[0], setHand[1], setHand[2], setHand[3], setHand[4]]
+      var kickArray = [aceValue(setHand[0]), aceValue(setHand[1]), aceValue(setHand[2]), aceValue(setHand[3]), aceValue(setHand[4])]
       return {'string': 'High Card: ' + setHand[0].valueString, 'hand': setHand, 'value': 10, 'high': kickArray };
       break;
     }
