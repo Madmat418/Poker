@@ -8,8 +8,9 @@
         7 : 'Seven', 8 : 'Eight', 9 : 'Nine', 10 : 'Ten', 11 : 'Jack', 12 : 'Queen',
         13 : 'King'
   }
-  var POCLOCS = {1: [220, 350], 2: [740, 350], 3: [880, 200], 4: [740, 20],  5: [220, 20],  6: [20, 200]}
-  var INFLOCS = {1: [207, 450], 2: [727, 450], 3: [867, 300], 4: [727, 120], 5: [207, 120], 6: [ 7, 300]}
+  var POCLOCS       = {0: [220, 350], 1: [740, 350], 2: [880, 200], 3: [740, 20],  4: [220, 20],  5: [20 , 200]}
+  var INFLOCS       = {0: [207, 450], 1: [727, 450], 2: [867, 300], 3: [727, 120], 4: [207, 120], 5: [ 7 , 300]}
+  var DEALERBUTLOCS = {0: [345, 470], 1: [705, 470], 2: [845, 320], 3: [705, 140], 4: [345, 140], 5: [145, 320]}
   var images = {};
   var cardBack = new Image();
   cardBack.src = '/assets/Card_Back.jpg';
@@ -120,6 +121,33 @@
     stage.add(layer);
   }
   
+  var dealerButton = function(num) {
+    var layer = new Kinetic.Layer({
+      name: 'dealer'
+    })
+    var loc = DEALERBUTLOCS[num];
+    var circle = new Kinetic.Circle({
+      radius: 10,
+      x: loc[0],
+      y: loc[1],
+      fill: '#ddd',
+      stroke: 'black',
+      strokeWidth: 1
+    })
+    var string = new Kinetic.Text({
+      x: loc[0] - 5,
+      y: loc[1] - 5,
+      width: 10,
+      text: 'D',
+      fontsize: 10,
+      fill: '#555',
+      align: 'center'
+    })
+    layer.add(circle);
+    layer.add(string);
+    stage.add(layer);
+  }
+  
   var makeButton = function(loc, action, string) {
       var layer = new Kinetic.Layer({
         name: 'button'
@@ -131,7 +159,7 @@
         text: string,
         fontsize: 12,
         fill: '#555',
-        align: 'center',
+        align: 'center'
       })
       var button = new Kinetic.Rect({
         x: loc[0],
@@ -151,12 +179,33 @@
     stage.add(layer);
   }
   
+  var renderBg = function(background) {
+    var bg = new Kinetic.Layer();
+    var backgroundImage = new Kinetic.Image({
+      image: background
+    })
+    bg.add(backgroundImage);
+    stage.add(bg);
+  }
+  
   $(document).ready(function() {
     var chatApp = new ChatApp.Chat(socket);
+    var background = new Image();
+    background.src = '/assets/background.jpg'
+    setTimeout(function() {  
+      renderBg(background)
+    }, 100);
+    
     var myPos = 0;
     socket.on('gameInProgress', function(data) {
     
     
+    })
+    
+    socket.on('dealButton', function(data) {
+      var button = stage.find('.dealer');
+      button.destroy();
+      dealerButton(data.loc);
     })
     
     socket.on('gameNotStarted', function(data) {

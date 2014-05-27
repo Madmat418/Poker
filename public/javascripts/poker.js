@@ -9,9 +9,10 @@
   }
   
   
-  Game = Poker.Game = function(players) {
+  Game = Poker.Game = function(players, dealer, room) {
     var that = this;
-    this.players = players;
+    this.dealer = dealer;
+    this.players = this.orderPlayers(players);
     this.deck = Poker.newDeck();
     this.numPlayers = 0;
     this.players.forEach(function(player) {
@@ -29,8 +30,22 @@
     this.currentBet = 0;
     this.PHASES = ['Preflop', 'Flop', 'Turn', 'River', 'Resolve']
     this.phase = 0;
-    this.currentPlayer = 0;
+    this.currentPlayer = 1;
     this.numCalled = 0;
+    this.room = room;
+  }
+  
+  Game.prototype.orderPlayers = function(players) {
+    var ordered = [];
+    for (var i = 0; i <= 5; i++) {
+      players.forEach(function(player) {
+        if (player.location === i) {
+          player.order = ordered.length;
+          ordered.push(player);
+        }
+      })
+    }
+    return ordered.concat(ordered.splice(0, this.dealer));
   }
   
   Game.prototype.playerPos = function() {
@@ -372,5 +387,6 @@
     this.room = '';
     this.currentBet = 0;
     this.location = '';
+    this.order;
   }
 })(this);
