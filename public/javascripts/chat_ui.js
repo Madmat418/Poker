@@ -194,13 +194,9 @@
     background.src = '/assets/background.jpg'
     setTimeout(function() {  
       renderBg(background)
-    }, 100);
-    
+    }, 500);
     var myPos = 0;
-    socket.on('gameInProgress', function(data) {
     
-    
-    })
     
     socket.on('dealButton', function(data) {
       var button = stage.find('.dealer');
@@ -208,7 +204,8 @@
       dealerButton(data.loc);
     })
     
-    socket.on('gameNotStarted', function(data) {
+    socket.on('gameNotStarted', function() {
+      removeItems('.button');
       makeButton([20,20], chatApp.startPoker.bind(chatApp), 'Play Poker');
     })
     socket.on('message', function(message) {
@@ -267,25 +264,20 @@
 
     var timer = '';
     socket.on('betPhase', function(data) {
-      console.log('here');
-      if (data.game.numPlayers === 1) {
-        chatApp.winner();
+      makeButton([920, 350], fold.bind(chatApp), 'Fold')
+      if (data.player.currentBet === data.game.currentBet) {
+        makeButton([920, 400], check.bind(chatApp), 'Check');
       } else {
-        makeButton([920, 350], fold.bind(chatApp), 'Fold')
-        if (data.player.currentBet === data.game.currentBet) {
-          makeButton([920, 400], check.bind(chatApp), 'Check');
-        } else {
-          makeButton([920, 400], call.bind(chatApp), 'Call');
-        }
-        makeButton([920, 450], raise.bind(chatApp), 'Raise');
-        var ticker = 0;
-        timer = setInterval(function() {
-          ticker += 1
-          if (ticker >= 1500) {
-            fold();
-          }
-        }, 10)
+        makeButton([920, 400], call.bind(chatApp), 'Call');
       }
+      makeButton([920, 450], raise.bind(chatApp), 'Raise');
+      var ticker = 0;
+      timer = setInterval(function() {
+        ticker += 1
+        if (ticker >= 1500) {
+          fold();
+        }
+      }, 10)
     })
     socket.on('clearBoard', function() {
       removeItems('.button');
@@ -296,6 +288,12 @@
       var cardString = '.cards' + numString;
       removeItems(cardString);
     })
+    
+    socket.on('winWhilePlaying', function() {
+      clearInterval(timer);
+      removeItems('.button');
+    })
+    
     socket.on('newButton', function() {
       makeButton([20,20], chatApp.startPoker.bind(chatApp), 'Play Poker');
     })

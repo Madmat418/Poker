@@ -40,10 +40,6 @@
     this.socket.emit('call', {room: this.room});
   }
   
-  Chat.prototype.winner = function() {
-    this.socket.emit('winByFold', {room: this.room});
-  }
-  
   Chat.prototype.processCommand = function(command){
     commandArgs = command.split(' ');
     switch(commandArgs[0]) {
